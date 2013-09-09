@@ -1,0 +1,79 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+package de.drop_converter;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import de.drop_converter.plugin.ConverterPlugin;
+import de.drop_converter.plugin.exception.InitializationException;
+
+/**
+ * Handle plugin loading.
+ * 
+ * @author Thomas Chojecki
+ */
+public class PluginHandler
+{
+
+  private static final Logger LOG = Logger.getLogger(PluginHandler.class.getName());
+
+  private final Set<ConverterPluginWrapper> plugins = new TreeSet<ConverterPluginWrapper>();
+
+  /**
+   * Load all plugins that can be find via the <code>ClassLoader</code>.
+   * 
+   * @param cl is the <code>ClassLoader</code> where the plugins should be searched.
+   * @param pluginExclusions is a list with plugins that need to be excluded.
+   */
+  public void loadPlugins(ClassLoader cl, List<String> pluginExclusions)
+  {
+    // TODO: The plugin exclusion need to be implemented.
+    if (pluginExclusions == null) {
+      pluginExclusions = Collections.emptyList();
+    }
+
+    for (ConverterPlugin converterPlugin : ServiceLoader.load(ConverterPlugin.class, cl)) {
+      ConverterPluginWrapper container = new ConverterPluginWrapper(converterPlugin);
+      if (pluginExclusions.contains(converterPlugin.getClass().getName())) {
+        LOG.info("Plugin disabled by the user: " + container.getPluginName());
+      } else {
+        try {
+          // Initialize the plugin
+          container.initializePlugin();
+        } catch (InitializationException e) {
+          LOG.log(Level.SEVERE, "Plugin initialization failed: " + container.getPluginName()
+              + " could not be initialized.", e);
+        }
+      }
+      registerPlugin(container);
+    }
+  }
+
+  /**
+   * Register new plugins.
+   * 
+   * @param plugin is the loaded plugin that should be add to the ComboBox
+   */
+  public void registerPlugin(ConverterPluginWrapper plugin)
+  {
+    plugins.add(plugin);
+  }
+
+  /**
+   * Return all registered plugins.
+   * 
+   * @return
+   */
+  public Set<ConverterPluginWrapper> getPlugins()
+  {
+    return Collections.unmodifiableSet(plugins);
+  }
+
+}

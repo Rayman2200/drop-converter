@@ -1,0 +1,13 @@
+A list with some features that should be implemented in further versions.
+=========================================================================
+- Plugins can be added through a drag and drop on the ComboBox.
+- More complex plugin-structure (at this time, a plugin need to have all his dependencies inside the jar)
+  - subfolders for plugins with dependencies
+  - Zip-container for plugins with dependencies
+- Own classloader for each plugin to prevent dependency conflicts
+- Context menu for converter configuration
+- Settings dialog for plugin configuration
+  - TabbedPanel where each plugin will be displayed via his name
+  - Plugins can provide a JPanel for his configuration dialog
+- JNLP version of the drop converter
+- provide the plugin jar over the maven repository

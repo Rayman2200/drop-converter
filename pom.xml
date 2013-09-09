@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>de.drop_converter</groupId>
+	<artifactId>parent</artifactId>
+	<version>0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<developers>
+		<developer>
+			<id>tchojecki</id>
+			<name>Thomas Chojecki</name>
+			<roles>
+				<role>owner</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<scm>
+	  <connection>scm:git:https://github.com/Rayman2200/drop-converter.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:Rayman2200/drop-converter.git</developerConnection>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<modules>
+		<module>drop-converter-plugin</module>
+		<module>drop-converter-app</module>
+	</modules>
+	<name>Drop Converter</name>
+	<description>Converts incoming Drag&amp;Drops using configured plugins.</description>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.4.1</version>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<!-- Jenkins by default defines a property BUILD_NUMBER which is used to 
+			enable the profile. -->
+		<profile>
+			<id>jenkins</id>
+			<activation>
+				<property>
+					<name>env.BUILD_NUMBER</name>
+				</property>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>cobertura-maven-plugin</artifactId>
+							<version>2.5.2</version>
+							<configuration>
+								<formats>
+									<format>xml</format>
+								</formats>
+							</configuration>
+							<executions>
+								<execution>
+									<phase>package</phase>
+									<goals>
+										<goal>cobertura</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
+						<plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>findbugs-maven-plugin</artifactId>
+							<version>2.5.2</version>
+							<configuration>
+								<findbugsXmlOutput>true</findbugsXmlOutput>
+								<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+								<xmlOutput>true</xmlOutput>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+	</profiles>
+</project>
