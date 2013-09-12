@@ -11,3 +11,10 @@ A list with some features that should be implemented in further versions.
   - Plugins can provide a JPanel for his configuration dialog
 - JNLP version of the drop converter
 - provide the plugin jar over the maven repository
+- Customization 
+  - Plugins can provide own image for the drop area
+  - Themes (cooperate design)
+- Status- / Progressbar
+- Trayicon for minimization
+- Helper for determinating the output (file in filesystem or to clipboard)
+- Contextmenu extensions for plugins 
