@@ -1,4 +1,4 @@
-drop-converter
+Drop-Converter
 ==============
 
-plug-able converter which converts files via drop
+Converts incoming Drag&Drops using configured plugins.
