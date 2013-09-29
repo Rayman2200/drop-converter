@@ -142,9 +142,13 @@ public class JPluginComboBox extends JComboBox<ConverterPluginWrapper>
             }
           }
 
-          handler.loadPlugins(new URLClassLoader(plugins.toArray(new URL[0])), null);
-          reloadPlugins();
-          return true;
+          // Only reload if at least one plugin was added.
+          if (!plugins.isEmpty()) {
+            handler.loadPlugins(new URLClassLoader(plugins.toArray(new URL[0])), null);
+            reloadPlugins();
+            return true;
+          }
+          return false;
         }
       } catch (UnsupportedFlavorException | IOException e) {
         LOG.log(Level.SEVERE, "Could not procede with given Drag&Drop.", e);
