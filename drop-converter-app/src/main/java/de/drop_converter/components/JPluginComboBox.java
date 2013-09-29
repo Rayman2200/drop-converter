@@ -3,11 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package de.drop_converter.components;
 
+import static de.drop_converter.Converter.CONVERTER_PLUGIN_DIR;
+
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,6 +29,7 @@ import javax.swing.JComboBox;
 import javax.swing.TransferHandler;
 
 import de.drop_converter.ConverterPluginWrapper;
+import de.drop_converter.PluginHandler;
 import de.drop_converter.plugin.exception.InitializationException;
 
 /**
@@ -26,18 +39,27 @@ import de.drop_converter.plugin.exception.InitializationException;
  */
 public class JPluginComboBox extends JComboBox<ConverterPluginWrapper>
 {
-  private static final long serialVersionUID = -2505280449969300955L;
+  private static final long serialVersionUID = -2505280443579300955L;
   private final static Logger LOG = Logger.getLogger(JPluginComboBox.class.getName());
 
+  private final PluginHandler handler;
   private ConverterPluginWrapper lastPlugin;
+
+  public JPluginComboBox(PluginHandler pluginHandler)
+  {
+    handler = pluginHandler;
+    setTransferHandler(new JPluginComboBoxTransferHandler());
+  }
 
   /**
    * Refresh the view.
    * 
    * @param pluginHandler
    */
-  public void reloadPlugins(Collection<ConverterPluginWrapper> plugins)
+  public void reloadPlugins()
   {
+    Set<ConverterPluginWrapper> plugins = handler.getPlugins();
+
     Model model = new Model(plugins);
     setModel(model);
 
@@ -91,15 +113,43 @@ public class JPluginComboBox extends JComboBox<ConverterPluginWrapper>
     @Override
     public boolean canImport(TransferSupport support)
     {
-      // TODO Need to be implemented
-      return super.canImport(support);
+      return support.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
     }
 
     @Override
     public boolean importData(TransferSupport support)
     {
-      // TODO Need to be implemented
-      return super.importData(support);
+      try {
+        if (support.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+          Transferable transferable = support.getTransferable();
+          List<File> transferData = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+          ArrayList<URL> plugins = new ArrayList<URL>();
+          for (File file : transferData) {
+            if (file.isDirectory()) {
+              LOG.warning("Only Files are allowed as plugin Drag&Drop.");
+              return false;
+            }
+
+            if (file.getName().endsWith(".jar")) {
+              try {
+                File dest = new File(CONVERTER_PLUGIN_DIR, file.getName());
+                Files.copy(file.toPath(), dest.toPath(), new CopyOption[0]);
+                plugins.add(dest.toURI().toURL());
+              } catch (IOException e) {
+                LOG.log(Level.WARNING,
+                    "Could not copy Drag&Dropped plugin " + file.getName() + " to plugin directory.", e);
+              }
+            }
+          }
+
+          handler.loadPlugins(new URLClassLoader(plugins.toArray(new URL[0])), null);
+          reloadPlugins();
+          return true;
+        }
+      } catch (UnsupportedFlavorException | IOException e) {
+        LOG.log(Level.SEVERE, "Could not procede with given Drag&Drop.", e);
+      }
+      return false;
     }
   }
 
