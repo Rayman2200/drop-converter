@@ -40,7 +40,7 @@ import de.drop_converter.components.JPluginComboBox;
 public class Converter extends JFrame
 {
 
-  private static final long serialVersionUID = 907314920971184488L;
+  private static final long serialVersionUID = 907314946871184488L;
 
   // Default init
   private final Position position = Position.LOWER_RIGHT;
@@ -49,15 +49,15 @@ public class Converter extends JFrame
 
   private final JLabel labelBottom = new JLabel(" ");
 
-  private final JPluginComboBox pluginsChooser = new JPluginComboBox();
+  private final JPluginComboBox pluginsChooser;
 
-  private final PluginHandler pluginHandler = new PluginHandler();
+  private final PluginHandler pluginHandler;
 
-  private final static File CONVERTER_CONFIG_DIR = new File(System.getProperty("user.home"), ".drop_converter");
+  public final static File CONVERTER_CONFIG_DIR = new File(System.getProperty("user.home"), ".drop_converter");
 
-  private final static File CONVERTER_PLUGIN_DIR = new File(CONVERTER_CONFIG_DIR, "plugins");
+  public final static File CONVERTER_PLUGIN_DIR = new File(CONVERTER_CONFIG_DIR, "plugins");
 
-  private final static File CONVERTER_LOGGING_DIR = new File(CONVERTER_CONFIG_DIR, "logging");
+  public final static File CONVERTER_LOGGING_DIR = new File(CONVERTER_CONFIG_DIR, "logging");
 
   enum Position
   {
@@ -79,6 +79,9 @@ public class Converter extends JFrame
 
   public Converter()
   {
+    pluginHandler = new PluginHandler();
+    pluginsChooser = new JPluginComboBox(pluginHandler);
+
     // init gui
     init();
 
@@ -121,7 +124,7 @@ public class Converter extends JFrame
 
     URLClassLoader urlClassLoader = URLClassLoader.newInstance(urls.toArray(new URL[0]));
     pluginHandler.loadPlugins(urlClassLoader, null);
-    pluginsChooser.reloadPlugins(pluginHandler.getPlugins());
+    pluginsChooser.reloadPlugins();
   }
 
   /**
