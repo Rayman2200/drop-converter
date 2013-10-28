@@ -29,20 +29,32 @@
 		</developer>
 	</developers>
 
+	<distributionManagement>
+		<repository>
+			<id>drop-converter</id>
+			<url>http://nexus.drop-converter.de/nexus/content/repositories/releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>drop-converter</id>
+			<url>http://nexus.drop-converter.de/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<scm>
 		<url>http://www.drop-converter.de</url>
+		<developerConnection>scm:git:ssh://git@github.com/Rayman2200/drop-converter.git</developerConnection>
 		<connection>scm:git:https://github.com/Rayman2200/drop-converter.git</connection>
 	</scm>
-	
-	 <issueManagement>
-    <url>https://github.com/Rayman2200/drop-converter/issues</url>
-    <system>GitHub</system>
-  </issueManagement>
-  
-  <ciManagement>
-    <url>http://jenkins.drop-converter.de/</url>
-    <system>Jenkins</system>
-  </ciManagement>
+
+	<issueManagement>
+		<url>https://github.com/Rayman2200/drop-converter/issues</url>
+		<system>GitHub</system>
+	</issueManagement>
+
+	<ciManagement>
+		<url>http://ci.drop-converter.de/</url>
+		<system>Jenkins</system>
+	</ciManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
