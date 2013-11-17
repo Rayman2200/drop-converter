@@ -5,6 +5,7 @@ package de.drop_converter;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -31,6 +32,8 @@ public class PluginHandler
   private final Set<String> pluginExclusions = new TreeSet<>();
 
   private final List<PluginListener> listenerList = new ArrayList<>();
+
+  private boolean closed = false;
 
   /**
    * Load all plugins that can be find via the <code>ClassLoader</code>.
@@ -84,10 +87,45 @@ public class PluginHandler
     return Collections.unmodifiableSet(plugins);
   }
 
+  /**
+   * Register PluginLister that notify if a plugin was added or removed.
+   * 
+   * @param listener is the listener interface.
+   */
   public void addPluginListener(PluginListener listener)
   {
     if (!listenerList.contains(listener)) {
       listenerList.add(listener);
     }
   }
+
+  /**
+   * Dispose the PluginHandler and disable/destroy the plugins.
+   */
+  public synchronized void dispose()
+  {
+    if (!closed) {
+      LOG.info("Shutting down the plugin handler and all registered plugins.");
+      Iterator<PluginWrapper> iterator = plugins.iterator();
+      while (iterator.hasNext()) {
+        PluginWrapper pluginWrapper = (PluginWrapper) iterator.next();
+
+        try {
+          if (pluginWrapper.isPluginEnabled()) {
+            pluginWrapper.disablePlugin();
+          }
+
+          if (pluginWrapper.isPluginInitialized()) {
+            pluginWrapper.destroyPlugin();
+          }
+        } catch (InitializationException e) {
+          // nothing to do
+        }
+      }
+      closed = true;
+    } else {
+      LOG.info("PluginHandler already shut down. Skipping.");
+    }
+  }
+
 }
