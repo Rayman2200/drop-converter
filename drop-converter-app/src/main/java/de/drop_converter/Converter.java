@@ -92,7 +92,7 @@ public class Converter extends JFrame
     URLClassLoader pluginClassloader = loadPlugins();
 
     if (pluginClassloader != null) {
-      pluginHandler.loadPlugins(loadPlugins(), null);
+      pluginHandler.loadPlugins(loadPlugins());
       // pluginsChooser.reloadPlugins();
     }
 

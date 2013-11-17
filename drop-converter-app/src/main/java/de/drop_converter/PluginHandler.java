@@ -28,6 +28,8 @@ public class PluginHandler
 
   private final Set<PluginWrapper> plugins = new TreeSet<>();
 
+  private final Set<String> pluginExclusions = new TreeSet<>();
+
   private final List<PluginListener> listenerList = new ArrayList<>();
 
   /**
@@ -36,17 +38,10 @@ public class PluginHandler
    * @param cl is the <code>ClassLoader</code> where the plugins should be searched.
    * @param pluginExclusions is a list with plugins that need to be excluded.
    */
-  public void loadPlugins(ClassLoader cl, List<String> pluginExclusions)
+  public void loadPlugins(ClassLoader cl)
   {
-    // TODO: The plugin exclusion need to be implemented.
-    if (pluginExclusions == null) {
-      pluginExclusions = Collections.emptyList();
-    }
-
     for (ConverterPlugin converterPlugin : ServiceLoader.load(ConverterPlugin.class, cl)) {
-      PluginWrapper container = new PluginWrapper(converterPlugin);
-
-      registerPlugin(container);
+      registerPlugin(converterPlugin);
     }
   }
 
@@ -59,14 +54,14 @@ public class PluginHandler
   {
     PluginWrapper pluginWrapper = new PluginWrapper(plugin);
 
-    if (pluginExclusions.contains(converterPlugin.getClass().getName())) {
-      LOG.info("Plugin disabled by the user: " + container.getPluginName());
+    if (pluginExclusions.contains(plugin.getClass().getName())) {
+      LOG.info("Plugin disabled by the user: " + pluginWrapper.getPluginName());
     } else {
       try {
         // Initialize the plugin
-        container.initializePlugin();
+        pluginWrapper.initializePlugin();
       } catch (InitializationException e) {
-        LOG.log(Level.SEVERE, "Plugin initialization failed: " + container.getPluginName()
+        LOG.log(Level.SEVERE, "Plugin initialization failed: " + pluginWrapper.getPluginName()
             + " could not be initialized.", e);
       }
     }
@@ -75,13 +70,8 @@ public class PluginHandler
 
     // fire listener
     for (PluginListener listener : listenerList) {
-      listener.addedPlugin(plugin);
+      listener.addedPlugin(pluginWrapper);
     }
-  }
-
-  private PluginWrapper wrapConverterPlugin(ConverterPlugin plugin)
-  {
-
   }
 
   /**

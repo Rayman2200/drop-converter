@@ -12,8 +12,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import de.drop_converter.ConverterPluginWrapper;
 import de.drop_converter.PluginHandler;
+import de.drop_converter.PluginWrapper;
 import de.drop_converter.plugin.ConverterPlugin;
 
 /**
@@ -90,7 +90,7 @@ public class JSettingsDialog extends JDialog
    * 
    * @param pluginWrapper is the plugin which configuration panel should be add to the JTabbedPane.
    */
-  public void addTab(ConverterPluginWrapper pluginWrapper)
+  public void addTab(PluginWrapper pluginWrapper)
   {
     ConverterPlugin plugin = pluginWrapper.getPlugin();
     JPanel configPanel = plugin.getConfigPanel();
@@ -99,9 +99,9 @@ public class JSettingsDialog extends JDialog
     }
   }
 
-  public void removeTab(ConverterPluginWrapper pluginWrapper)
+  public void removeTab(PluginWrapper pluginWrapper)
   {
-    pane.g
-    
+    // pane.g
+
   }
 }

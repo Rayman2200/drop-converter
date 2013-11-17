@@ -28,8 +28,8 @@ import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.TransferHandler;
 
-import de.drop_converter.PluginWrapper;
 import de.drop_converter.PluginHandler;
+import de.drop_converter.PluginWrapper;
 import de.drop_converter.listener.PluginListener;
 import de.drop_converter.plugin.exception.InitializationException;
 
@@ -147,7 +147,7 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
 
           // Only reload if at least one plugin was added.
           if (!plugins.isEmpty()) {
-            handler.loadPlugins(new URLClassLoader(plugins.toArray(new URL[0])), null);
+            handler.loadPlugins(new URLClassLoader(plugins.toArray(new URL[0])));
             return true;
           }
           return false;
@@ -164,8 +164,8 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
    * 
    * @author Thomas Chojecki
    */
-  private static class Model extends AbstractListModel<PluginWrapper> implements
-      ComboBoxModel<PluginWrapper>, PluginListener
+  private static class Model extends AbstractListModel<PluginWrapper> implements ComboBoxModel<PluginWrapper>,
+      PluginListener
   {
     private static final long serialVersionUID = -8935531015863045662L;
 
