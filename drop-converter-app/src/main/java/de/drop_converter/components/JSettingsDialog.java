@@ -14,6 +14,7 @@ import javax.swing.JTabbedPane;
 
 import de.drop_converter.PluginHandler;
 import de.drop_converter.PluginWrapper;
+import de.drop_converter.listener.PluginListener;
 import de.drop_converter.plugin.ConverterPlugin;
 
 /**
@@ -21,14 +22,12 @@ import de.drop_converter.plugin.ConverterPlugin;
  * 
  * @author Thomas Chojecki
  */
-public class JSettingsDialog extends JDialog
+public class JSettingsDialog extends JDialog implements PluginListener
 {
 
   private final JTabbedPane pane = new JTabbedPane(JTabbedPane.LEFT);
 
   private static final Logger LOG = Logger.getLogger(JSettingsDialog.class.getName());
-
-  private PluginHandler pluginHandler;
 
   /**
    * @param parent is the parent JFrame
@@ -42,18 +41,11 @@ public class JSettingsDialog extends JDialog
     setTitle("Settings");
     setSize(800, 600);
     add(pane);
-  }
 
-  @Override
-  public void setVisible(boolean b)
-  {
-    // recreating the JTabbedPane.
-
-    pane.removeAll();
+    pluginHandler.addPluginListener(this);
+    
     addTab("Global settings", createConverterConfiguration());
     addTab("Plugin configuration", new JPluginConfiguration(pluginHandler));
-
-    super.setVisible(b);
   }
 
   private JPanel createConverterConfiguration()
@@ -61,16 +53,6 @@ public class JSettingsDialog extends JDialog
     JPanel panel = new JPanel();
     panel.add(new JLabel("Hallo Welt"));
     return panel;
-  }
-
-  public void setPluginHandler(PluginHandler pluginHandler)
-  {
-    this.pluginHandler = pluginHandler;
-  }
-
-  public void reloadPlugins()
-  {
-
   }
 
   /**
@@ -101,7 +83,17 @@ public class JSettingsDialog extends JDialog
 
   public void removeTab(PluginWrapper pluginWrapper)
   {
-    // pane.g
-
+    // FIXME: 
   }
+
+  @Override
+  public void addedPlugin(PluginWrapper plugin)
+  {
+    addTab(plugin);
+  }
+
+  public void removedPlugin(PluginWrapper plugin)
+  {
+    removeTab(plugin);
+  };
 }
