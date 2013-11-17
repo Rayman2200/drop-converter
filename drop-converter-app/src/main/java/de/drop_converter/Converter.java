@@ -27,10 +27,14 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JSeparator;
 import javax.swing.UIManager;
 
+import de.drop_converter.components.ContextMenu;
 import de.drop_converter.components.JDropableComponent;
 import de.drop_converter.components.JPluginComboBox;
+import de.drop_converter.components.actions.ExitContext;
+import de.drop_converter.components.actions.SettingsContext;
 
 /**
  * Main executable class. Provide the GUI and initialization.
@@ -52,6 +56,8 @@ public class Converter extends JFrame
   private final JPluginComboBox pluginsChooser;
 
   private final PluginHandler pluginHandler;
+
+  private final JDropableComponent dropComponent;
 
   public final static File CONVERTER_BASE_DIR = new File(System.getProperty("user.home"), ".drop_converter");
 
@@ -79,12 +85,30 @@ public class Converter extends JFrame
 
   public Converter()
   {
+    Image image = null;
+    URL resource = null;
+    try {
+      resource = getClass().getResource("/images/dragdrop-150.png");
+      if (resource == null) {
+        LOGGER.warning("Could not find drop-image.");
+        image = createFallbackImage();
+      } else {
+        image = ImageIO.read(resource);
+      }
+    } catch (IOException e) {
+      LOGGER.log(Level.WARNING, "Could not parse drop-image from " + resource + ". Creating fallback image");
+      image = createFallbackImage();
+    }
+
     pluginHandler = new PluginHandler();
     pluginsChooser = new JPluginComboBox(pluginHandler);
-    // JSettingsDialog jSettingsDialog = new JSettingsDialog(this);
+    dropComponent = new JDropableComponent(image, pluginsChooser);
 
     // init the gui (all components should be initialized before this call
     initGUI();
+
+    // create the context menu and init the entries
+    initContextMenu();
 
     // init the directory structure for the converter (plugin, logging and configuration directories)
     initDirectories();
@@ -106,7 +130,7 @@ public class Converter extends JFrame
   private void initGUI() throws IllegalStateException
   {
     setAlwaysOnTop(true);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     setLayout(new BorderLayout());
     setTitle("Converter");
     labelBottom.setBackground(Color.WHITE);
@@ -115,31 +139,19 @@ public class Converter extends JFrame
     try {
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     } catch (Exception e1) {
-      LOGGER.log(Level.FINE, "Could not load system look and feel", e1);
+      LOGGER.fine("Could not load system look and feel. Using default one.");
     }
 
     try {
       Dimension screenSize = getToolkit().getScreenSize();
-      Image image = null;
-
-      URL resource = getClass().getResource("/images/dragdrop-150.png");
-      if (resource == null) {
-        LOGGER.warning("Could not find drop-image.");
-        image = createFallbackImage();
-      } else {
-        image = ImageIO.read(resource);
-      }
 
       add(pluginsChooser, BorderLayout.NORTH);
-      add(new JDropableComponent(image, pluginsChooser), BorderLayout.CENTER);
+      add(dropComponent, BorderLayout.CENTER);
       pack();
       // alignment need to be done after pack
       alignWindow(getSize(), screenSize, position);
     } catch (HeadlessException e) {
-      LOGGER.severe("converter can not be run in a headless envirment.");
-      System.exit(1);
-    } catch (Exception e) {
-      LOGGER.log(Level.SEVERE, "Unexcpected exception. ", e);
+      LOGGER.severe("Converter can not be run in a headless environment.");
       System.exit(1);
     }
   }
@@ -151,12 +163,22 @@ public class Converter extends JFrame
   private void initDirectories()
   {
     // check and init the directories, if they currently not exist.
-    LOGGER.fine("Try to create base configuration directory. " + CONVERTER_BASE_DIR);
     checkDirectory(CONVERTER_BASE_DIR);
-    LOGGER.fine("Try to create plugin directory. " + CONVERTER_PLUGIN_DIR);
     checkDirectory(CONVERTER_PLUGIN_DIR);
-    LOGGER.fine("Try to create logger directory. " + CONVERTER_LOGGING_DIR);
     checkDirectory(CONVERTER_LOGGING_DIR);
+  }
+
+  /**
+   * Creating context menu.
+   */
+  private void initContextMenu()
+  {
+    ContextMenu contextMenu = new ContextMenu();
+
+    contextMenu.addMenuEntry(new SettingsContext(this, pluginHandler));
+    contextMenu.addMenuEntry(new JSeparator());
+    contextMenu.addMenuEntry(new ExitContext(this));
+    dropComponent.setContextMenu(contextMenu);;
   }
 
   /**
@@ -167,18 +189,21 @@ public class Converter extends JFrame
   private void checkDirectory(File directory)
   {
     if (!directory.exists()) {
-      if (!directory.mkdirs()) {
+      if (directory.mkdirs()) {
+        LOGGER.config("Created directory " + directory.getAbsolutePath());
+      } else {
         System.err.println("Could not create directory " + directory.getAbsolutePath());
+        LOGGER.severe("Created directory " + directory.getAbsolutePath());
         System.exit(1);
       }
     }
 
     if (!directory.isDirectory()) {
-      System.err.println("Could not create directory " + directory.getAbsolutePath());
+      LOGGER.severe("Could not create directory " + directory.getAbsolutePath());
       System.exit(1);
     }
     if (!directory.canWrite()) {
-      System.err.println("No write permission in directory " + directory.getAbsolutePath());
+      LOGGER.severe("No write permission in directory " + directory.getAbsolutePath());
       System.exit(1);
     }
   }
@@ -293,6 +318,15 @@ public class Converter extends JFrame
     g.drawString("Drop-It", 30, 60);
 
     return image;
+  }
+
+  @Override
+  public void dispose()
+  {
+    if (pluginHandler != null) {
+      pluginHandler.dispose();
+    }
+    super.dispose();
   }
 
   public static void main(String[] args)
