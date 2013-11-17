@@ -41,7 +41,6 @@ public class JDropableComponent extends JComponent
   public JDropableComponent(Image img, JPluginComboBox pluginChooser)
   {
     this.pluginChooser = pluginChooser;
-    addMouseListener(new ContextMenu());
     setTransferHandler(new JDropableTransferHandler());
     this.img = img;
   }
@@ -56,6 +55,14 @@ public class JDropableComponent extends JComponent
   public Dimension getPreferredSize()
   {
     return new Dimension(img.getWidth(this), img.getHeight(this));
+  }
+  
+  /**
+   * Set the context menu
+   */
+  public void setContextMenu(ContextMenu menu) 
+  {
+    addMouseListener(menu);
   }
 
   /**
