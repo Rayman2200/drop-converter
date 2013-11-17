@@ -53,11 +53,11 @@ public class Converter extends JFrame
 
   private final PluginHandler pluginHandler;
 
-  public final static File CONVERTER_CONFIG_DIR = new File(System.getProperty("user.home"), ".drop_converter");
+  public final static File CONVERTER_BASE_DIR = new File(System.getProperty("user.home"), ".drop_converter");
 
-  public final static File CONVERTER_PLUGIN_DIR = new File(CONVERTER_CONFIG_DIR, "plugins");
+  public final static File CONVERTER_PLUGIN_DIR = new File(CONVERTER_BASE_DIR, "plugins");
 
-  public final static File CONVERTER_LOGGING_DIR = new File(CONVERTER_CONFIG_DIR, "logging");
+  public final static File CONVERTER_LOGGING_DIR = new File(CONVERTER_BASE_DIR, "logging");
 
   enum Position
   {
@@ -81,56 +81,29 @@ public class Converter extends JFrame
   {
     pluginHandler = new PluginHandler();
     pluginsChooser = new JPluginComboBox(pluginHandler);
+    // JSettingsDialog jSettingsDialog = new JSettingsDialog(this);
 
-    // init gui
-    init();
+    // init the gui (all components should be initialized before this call
+    initGUI();
 
-    // init the directories, if they currently not exist.
-    if (!CONVERTER_PLUGIN_DIR.exists()) {
-      if (!CONVERTER_LOGGING_DIR.mkdirs()) {
-        System.err.println("Could not create logging directory");
-        System.exit(1);
-      }
-      if (!CONVERTER_PLUGIN_DIR.mkdirs()) {
-        System.err.println("Could not create plugin directory");
-        System.exit(1);
-      }
-      // After all directories was created we can skip searching plugins.
-      return;
+    // init the directory structure for the converter (plugin, logging and configuration directories)
+    initDirectories();
+
+    URLClassLoader pluginClassloader = loadPlugins();
+
+    if (pluginClassloader != null) {
+      pluginHandler.loadPlugins(loadPlugins(), null);
+      // pluginsChooser.reloadPlugins();
     }
 
-    FilenameFilter jarFiles = new FilenameFilter()
-    {
-
-      @Override
-      public boolean accept(File dir, String name)
-      {
-        return name.endsWith(".jar");
-      }
-    };
-
-    // Search for plugins in the plugin directory and load it.
-    // TODO: Read also directories with complex plugin structures.
-    // TODO: Read also zip files for complex plugins.
-    // TODO: Seperate ClassLoader for each plugin.
-    ArrayList<URL> urls = new ArrayList<URL>();
-    for (File pluginFile : CONVERTER_PLUGIN_DIR.listFiles(jarFiles)) {
-      try {
-        urls.add(pluginFile.toURI().toURL());
-      } catch (MalformedURLException e) {
-        LOGGER.warning("Could not load Plugin: " + pluginFile.getAbsolutePath());
-      }
-    }
-
-    URLClassLoader urlClassLoader = URLClassLoader.newInstance(urls.toArray(new URL[0]));
-    pluginHandler.loadPlugins(urlClassLoader, null);
-    pluginsChooser.reloadPlugins();
   }
 
   /**
-   * Do some graphical initialization
+   * Do some graphical initialization.
+   * 
+   * @throws IllegalStateException if at least one component that is gui relevant is null.
    */
-  private void init()
+  private void initGUI() throws IllegalStateException
   {
     setAlwaysOnTop(true);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -169,6 +142,82 @@ public class Converter extends JFrame
       LOGGER.log(Level.SEVERE, "Unexcpected exception. ", e);
       System.exit(1);
     }
+  }
+
+  /**
+   * Prepare and if needed create the base converter directory. Usually the main directory will be created in the
+   * <code>System.getProperty("user.home")</code>.
+   */
+  private void initDirectories()
+  {
+    // check and init the directories, if they currently not exist.
+    LOGGER.fine("Try to create base configuration directory. " + CONVERTER_BASE_DIR);
+    checkDirectory(CONVERTER_BASE_DIR);
+    LOGGER.fine("Try to create plugin directory. " + CONVERTER_PLUGIN_DIR);
+    checkDirectory(CONVERTER_PLUGIN_DIR);
+    LOGGER.fine("Try to create logger directory. " + CONVERTER_LOGGING_DIR);
+    checkDirectory(CONVERTER_LOGGING_DIR);
+  }
+
+  /**
+   * Check and init the given directory.
+   * 
+   * @param directory
+   */
+  private void checkDirectory(File directory)
+  {
+    if (!directory.exists()) {
+      if (!directory.mkdirs()) {
+        System.err.println("Could not create directory " + directory.getAbsolutePath());
+        System.exit(1);
+      }
+    }
+
+    if (!directory.isDirectory()) {
+      System.err.println("Could not create directory " + directory.getAbsolutePath());
+      System.exit(1);
+    }
+    if (!directory.canWrite()) {
+      System.err.println("No write permission in directory " + directory.getAbsolutePath());
+      System.exit(1);
+    }
+  }
+
+  /**
+   * Load all plugins from the plugin directory
+   * 
+   * @return a URLClassLoader that contains all find plugins.
+   */
+  private URLClassLoader loadPlugins()
+  {
+    FilenameFilter jarFileFilter = new FilenameFilter()
+    {
+
+      @Override
+      public boolean accept(File dir, String name)
+      {
+        return name.endsWith(".jar");
+      }
+    };
+
+    // Search for plugins in the plugin directory and load it.
+    // TODO: Read also directories with complex plugin structures.
+    // TODO: Read also zip files for complex plugins.
+    // TODO: Seperate ClassLoader for each plugin.
+    File[] jarFiles = CONVERTER_PLUGIN_DIR.listFiles(jarFileFilter);
+
+    if (jarFiles.length > 0) {
+      ArrayList<URL> urls = new ArrayList<URL>();
+      for (File pluginFile : jarFiles) {
+        try {
+          urls.add(pluginFile.toURI().toURL());
+        } catch (MalformedURLException e) {
+          LOGGER.warning("Could not load Plugin: " + pluginFile.getAbsolutePath());
+        }
+      }
+      return URLClassLoader.newInstance(urls.toArray(new URL[0]));
+    }
+    return null;
   }
 
   /**

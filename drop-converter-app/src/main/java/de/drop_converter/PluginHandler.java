@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package de.drop_converter;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -11,11 +12,12 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import de.drop_converter.listener.PluginListener;
 import de.drop_converter.plugin.ConverterPlugin;
 import de.drop_converter.plugin.exception.InitializationException;
 
 /**
- * Handle plugin loading.
+ * Handle the drop-converter-plugins. New plugins can be
  * 
  * @author Thomas Chojecki
  */
@@ -24,7 +26,9 @@ public class PluginHandler
 
   private static final Logger LOG = Logger.getLogger(PluginHandler.class.getName());
 
-  private final Set<ConverterPluginWrapper> plugins = new TreeSet<ConverterPluginWrapper>();
+  private final Set<PluginWrapper> plugins = new TreeSet<>();
+
+  private final List<PluginListener> listenerList = new ArrayList<>();
 
   /**
    * Load all plugins that can be find via the <code>ClassLoader</code>.
@@ -40,18 +44,8 @@ public class PluginHandler
     }
 
     for (ConverterPlugin converterPlugin : ServiceLoader.load(ConverterPlugin.class, cl)) {
-      ConverterPluginWrapper container = new ConverterPluginWrapper(converterPlugin);
-      if (pluginExclusions.contains(converterPlugin.getClass().getName())) {
-        LOG.info("Plugin disabled by the user: " + container.getPluginName());
-      } else {
-        try {
-          // Initialize the plugin
-          container.initializePlugin();
-        } catch (InitializationException e) {
-          LOG.log(Level.SEVERE, "Plugin initialization failed: " + container.getPluginName()
-              + " could not be initialized.", e);
-        }
-      }
+      PluginWrapper container = new PluginWrapper(converterPlugin);
+
       registerPlugin(container);
     }
   }
@@ -61,19 +55,49 @@ public class PluginHandler
    * 
    * @param plugin is the loaded plugin that should be add to the ComboBox
    */
-  public void registerPlugin(ConverterPluginWrapper plugin)
+  public void registerPlugin(ConverterPlugin plugin)
   {
-    plugins.add(plugin);
+    PluginWrapper pluginWrapper = new PluginWrapper(plugin);
+
+    if (pluginExclusions.contains(converterPlugin.getClass().getName())) {
+      LOG.info("Plugin disabled by the user: " + container.getPluginName());
+    } else {
+      try {
+        // Initialize the plugin
+        container.initializePlugin();
+      } catch (InitializationException e) {
+        LOG.log(Level.SEVERE, "Plugin initialization failed: " + container.getPluginName()
+            + " could not be initialized.", e);
+      }
+    }
+
+    plugins.add(pluginWrapper);
+
+    // fire listener
+    for (PluginListener listener : listenerList) {
+      listener.addedPlugin(plugin);
+    }
+  }
+
+  private PluginWrapper wrapConverterPlugin(ConverterPlugin plugin)
+  {
+
   }
 
   /**
    * Return all registered plugins.
    * 
-   * @return
+   * @return a Set of plugins wrapped inside the <code>ConverterPluginsWrapper</code>
    */
-  public Set<ConverterPluginWrapper> getPlugins()
+  public Set<PluginWrapper> getPlugins()
   {
     return Collections.unmodifiableSet(plugins);
   }
 
+  public void addPluginListener(PluginListener listener)
+  {
+    if (!listenerList.contains(listener)) {
+      listenerList.add(listener);
+    }
+  }
 }

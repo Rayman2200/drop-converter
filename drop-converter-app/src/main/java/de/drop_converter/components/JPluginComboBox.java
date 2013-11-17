@@ -28,8 +28,9 @@ import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.TransferHandler;
 
-import de.drop_converter.ConverterPluginWrapper;
+import de.drop_converter.PluginWrapper;
 import de.drop_converter.PluginHandler;
+import de.drop_converter.listener.PluginListener;
 import de.drop_converter.plugin.exception.InitializationException;
 
 /**
@@ -37,31 +38,28 @@ import de.drop_converter.plugin.exception.InitializationException;
  * 
  * @author Thomas Chojecki
  */
-public class JPluginComboBox extends JComboBox<ConverterPluginWrapper>
+public class JPluginComboBox extends JComboBox<PluginWrapper>
 {
   private static final long serialVersionUID = -2505280443579300955L;
   private final static Logger LOG = Logger.getLogger(JPluginComboBox.class.getName());
 
   private final PluginHandler handler;
-  private ConverterPluginWrapper lastPlugin;
-
-  public JPluginComboBox(PluginHandler pluginHandler)
-  {
-    handler = pluginHandler;
-    setTransferHandler(new JPluginComboBoxTransferHandler());
-  }
+  private PluginWrapper lastPlugin;
 
   /**
-   * Refresh the view.
+   * Create a new ComboBox that contains the loaded plugins.
    * 
-   * @param pluginHandler
+   * @param pluginHandler contains the plugins that should be displayed in the list.
+   * @throws IllegalArgumentException will be thrown if the PluginHandler is null.
    */
-  public void reloadPlugins()
+  public JPluginComboBox(PluginHandler pluginHandler) throws IllegalArgumentException
   {
-    Set<ConverterPluginWrapper> plugins = handler.getPlugins();
+    if (pluginHandler == null) {
+      throw new IllegalArgumentException("PluginHandler shall not be null");
+    }
 
-    Model model = new Model(plugins);
-    setModel(model);
+    handler = pluginHandler;
+    setTransferHandler(new JPluginComboBoxTransferHandler());
 
     addItemListener(new ItemListener()
     {
@@ -69,12 +67,18 @@ public class JPluginComboBox extends JComboBox<ConverterPluginWrapper>
       public void itemStateChanged(ItemEvent e)
       {
         if (e.getStateChange() == ItemEvent.SELECTED) {
-          pluginStateChanged((ConverterPluginWrapper) e.getItem());
+          pluginStateChanged((PluginWrapper) e.getItem());
         }
       }
     });
 
-    if (plugins.size() != 0) {
+    Set<PluginWrapper> plugins = pluginHandler.getPlugins();
+
+    Model model = new Model(pluginHandler.getPlugins());
+    handler.addPluginListener(model);
+    setModel(model);
+
+    if (plugins.size() > 0) {
       setSelectedIndex(0);
     }
   }
@@ -82,10 +86,9 @@ public class JPluginComboBox extends JComboBox<ConverterPluginWrapper>
   /**
    * If the plugin state changed, we need to disable the old plugin and enable the new one.
    * 
-   * @param oldPlugin the old plugin that was deselected.
    * @param newPlugin the new plugin that was selected.
    */
-  private void pluginStateChanged(ConverterPluginWrapper newPlugin)
+  private void pluginStateChanged(PluginWrapper newPlugin)
   {
     if (lastPlugin != null && lastPlugin.isPluginEnabled()) {
       try {
@@ -145,7 +148,6 @@ public class JPluginComboBox extends JComboBox<ConverterPluginWrapper>
           // Only reload if at least one plugin was added.
           if (!plugins.isEmpty()) {
             handler.loadPlugins(new URLClassLoader(plugins.toArray(new URL[0])), null);
-            reloadPlugins();
             return true;
           }
           return false;
@@ -162,21 +164,21 @@ public class JPluginComboBox extends JComboBox<ConverterPluginWrapper>
    * 
    * @author Thomas Chojecki
    */
-  private static class Model extends AbstractListModel<ConverterPluginWrapper> implements
-      ComboBoxModel<ConverterPluginWrapper>
+  private static class Model extends AbstractListModel<PluginWrapper> implements
+      ComboBoxModel<PluginWrapper>, PluginListener
   {
     private static final long serialVersionUID = -8935531015863045662L;
 
-    private List<ConverterPluginWrapper> plugins;
+    private List<PluginWrapper> plugins;
 
     private Object selectedItem;
 
-    public Model(Collection<ConverterPluginWrapper> plugins)
+    public Model(Collection<PluginWrapper> plugins)
     {
       if (plugins instanceof List) {
-        this.plugins = (List<ConverterPluginWrapper>) plugins;
+        this.plugins = (List<PluginWrapper>) plugins;
       } else {
-        this.plugins = new ArrayList<ConverterPluginWrapper>(plugins);
+        this.plugins = new ArrayList<PluginWrapper>(plugins);
       }
     }
 
@@ -187,7 +189,7 @@ public class JPluginComboBox extends JComboBox<ConverterPluginWrapper>
     }
 
     @Override
-    public ConverterPluginWrapper getElementAt(int index)
+    public PluginWrapper getElementAt(int index)
     {
       return plugins.get(index);
     }
@@ -205,6 +207,24 @@ public class JPluginComboBox extends JComboBox<ConverterPluginWrapper>
     public Object getSelectedItem()
     {
       return selectedItem;
+    }
+
+    @Override
+    public void addedPlugin(PluginWrapper plugin)
+    {
+      plugins.add(plugin);
+      if (selectedItem == null) {
+        selectedItem = plugin;
+      }
+
+      int indexItem = plugins.size() - 1;
+      fireContentsChanged(this, indexItem, indexItem);
+    }
+
+    @Override
+    public void removedPlugin(PluginWrapper plugin)
+    {
+      plugins.remove(plugin);
     }
   }
 }

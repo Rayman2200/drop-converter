@@ -14,7 +14,7 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.TransferHandler;
 
-import de.drop_converter.ConverterPluginWrapper;
+import de.drop_converter.PluginWrapper;
 import de.drop_converter.plugin.exception.ConverterException;
 
 /**
@@ -70,7 +70,7 @@ public class JDropableComponent extends JComponent
     @Override
     public boolean canImport(TransferSupport support)
     {
-      ConverterPluginWrapper selectedItem = (ConverterPluginWrapper) pluginChooser.getSelectedItem();
+      PluginWrapper selectedItem = (PluginWrapper) pluginChooser.getSelectedItem();
       if (selectedItem != null) {
         support.setDropAction(COPY);
         return selectedItem.getPlugin().canImport(support);
@@ -81,7 +81,7 @@ public class JDropableComponent extends JComponent
     @Override
     public boolean importData(TransferSupport support)
     {
-      ConverterPluginWrapper selectedItem = (ConverterPluginWrapper) pluginChooser.getSelectedItem();
+      PluginWrapper selectedItem = (PluginWrapper) pluginChooser.getSelectedItem();
       if (selectedItem != null) {
         try {
           return selectedItem.getPlugin().importData(support);

@@ -10,14 +10,15 @@ import de.drop_converter.plugin.annotations.ConverterPluginDetails;
 import de.drop_converter.plugin.exception.InitializationException;
 
 /**
- * A container and wrapper for plugins. It hold the plugin itself, the details and provide some convenience methods.
+ * A container and wrapper for plugins. It hold the plugin itself, the details and provide some convenience methods. It
+ * is a thin layer over the drop-converter-plugin module.
  * 
  * @author Thomas Chojecki
  */
-public class ConverterPluginWrapper implements Comparable<ConverterPluginWrapper>
+public class PluginWrapper implements Comparable<PluginWrapper>
 {
 
-  private static final Logger LOG = Logger.getLogger(ConverterPluginWrapper.class.getName());
+  private static final Logger LOG = Logger.getLogger(PluginWrapper.class.getName());
 
   private String authorName = "";
   private String authorEmail = "";
@@ -31,7 +32,7 @@ public class ConverterPluginWrapper implements Comparable<ConverterPluginWrapper
 
   private ConverterPlugin plugin;
 
-  public ConverterPluginWrapper(ConverterPlugin plugin)
+  public PluginWrapper(ConverterPlugin plugin)
   {
     this.plugin = plugin;
 
@@ -168,7 +169,7 @@ public class ConverterPluginWrapper implements Comparable<ConverterPluginWrapper
   }
 
   @Override
-  public int compareTo(ConverterPluginWrapper o)
+  public int compareTo(PluginWrapper o)
   {
     return getPluginName().compareTo(o.getPluginName());
   }
