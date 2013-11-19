@@ -18,7 +18,7 @@ import de.drop_converter.plugin.exception.InitializationException;
 public class PluginWrapper implements Comparable<PluginWrapper>
 {
 
-  private static final Logger LOG = Logger.getLogger(PluginWrapper.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(PluginWrapper.class.getName());
 
   private String authorName = "";
   private String authorEmail = "";
@@ -100,7 +100,7 @@ public class PluginWrapper implements Comparable<PluginWrapper>
       }
 
       plugin.initPlugin();
-      LOG.info("Plugin initialized: " + getPluginName());
+      LOGGER.info("Plugin initialized: " + getPluginName());
       pluginInitialized = true;
     }
   }
@@ -114,7 +114,7 @@ public class PluginWrapper implements Comparable<PluginWrapper>
   {
     if (isPluginInitialized()) {
       plugin.destroyPlugin();
-      LOG.info("Plugin destroyed: " + getPluginName());
+      LOGGER.info("Plugin destroyed: " + getPluginName());
       plugin = null;
     }
   }
@@ -129,7 +129,7 @@ public class PluginWrapper implements Comparable<PluginWrapper>
   {
     if (!pluginEnabled) {
       plugin.enablePlugin();
-      LOG.info("Plugin enabled: " + getPluginName());
+      LOGGER.info("Plugin enabled: " + getPluginName());
       pluginEnabled = true;
     }
   }
@@ -143,7 +143,7 @@ public class PluginWrapper implements Comparable<PluginWrapper>
   {
     if (pluginEnabled) {
       plugin.disablePlugin();
-      LOG.info("Plugin disabled: " + getPluginName());
+      LOGGER.info("Plugin disabled: " + getPluginName());
       pluginEnabled = false;
     }
   }
