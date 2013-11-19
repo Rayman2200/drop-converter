@@ -46,7 +46,9 @@ public class Converter extends JFrame
 
   private static final long serialVersionUID = 907314946871184488L;
 
-  // Default init
+  /*
+   * GUI Components
+   */
   private final Position position = Position.LOWER_RIGHT;
 
   private final JLabel labelTop = new JLabel(" ");
@@ -59,11 +61,18 @@ public class Converter extends JFrame
 
   private final JDropableComponent dropComponent;
 
+  /*
+   * Configuration
+   */
+  private Configuration config;
+
   public final static File CONVERTER_BASE_DIR = new File(System.getProperty("user.home"), ".drop_converter");
 
   public final static File CONVERTER_PLUGIN_DIR = new File(CONVERTER_BASE_DIR, "plugins");
 
   public final static File CONVERTER_LOGGING_DIR = new File(CONVERTER_BASE_DIR, "logging");
+
+  public final static File CONFIGURATION_FILE = new File(CONVERTER_BASE_DIR, "settings.ini");
 
   enum Position
   {
@@ -85,6 +94,17 @@ public class Converter extends JFrame
 
   public Converter()
   {
+    // init the directory structure for the converter (plugin, logging and
+    // configuration directories)
+    initDirectories();
+
+    try {
+      config = new Configuration(CONFIGURATION_FILE);
+    } catch (IOException e1) {
+      LOGGER.log(Level.SEVERE, "Could not initialize configuration", e1);
+      System.exit(1);
+    }
+
     Image image = null;
     URL resource = null;
     try {
@@ -110,9 +130,6 @@ public class Converter extends JFrame
     // create the context menu and init the entries
     initContextMenu();
 
-    // init the directory structure for the converter (plugin, logging and configuration directories)
-    initDirectories();
-
     URLClassLoader pluginClassloader = loadPlugins();
 
     if (pluginClassloader != null) {
@@ -137,9 +154,9 @@ public class Converter extends JFrame
     labelTop.setBackground(Color.WHITE);
 
     try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      UIManager.setLookAndFeel(config.getLookAndFeel());
     } catch (Exception e1) {
-      LOGGER.fine("Could not load system look and feel. Using default one.");
+      LOGGER.log(Level.FINE, "Could not load configured look and feel. Using default one.",e1);
     }
 
     try {
@@ -248,9 +265,12 @@ public class Converter extends JFrame
   /**
    * Align the converter window to a specific position on the screen.
    * 
-   * @param frameSize is the size of the converter window
-   * @param screenSize is the size of the screen
-   * @param position is the Position where the windows should be shown.
+   * @param frameSize
+   *          is the size of the converter window
+   * @param screenSize
+   *          is the size of the screen
+   * @param position
+   *          is the Position where the windows should be shown.
    */
   private void alignWindow(Dimension frameSize, Dimension screenSize, Position position)
   {
@@ -327,6 +347,16 @@ public class Converter extends JFrame
       pluginHandler.dispose();
     }
     super.dispose();
+  }
+  
+  public Configuration getConfiguration()
+  {
+    return config;
+  }
+
+  public void setConfig(Configuration config)
+  {
+    this.config = config;
   }
 
   public static void main(String[] args)
