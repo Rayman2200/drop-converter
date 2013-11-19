@@ -6,8 +6,8 @@ package de.drop_converter.components.actions;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.JFrame;
 
+import de.drop_converter.Converter;
 import de.drop_converter.PluginHandler;
 import de.drop_converter.components.JSettingsDialog;
 
@@ -21,7 +21,7 @@ public class SettingsContext extends AbstractAction
 
   private final JSettingsDialog jSettingsDialog;
   
-  public SettingsContext(JFrame parent, PluginHandler pluginHandler)
+  public SettingsContext(Converter parent, PluginHandler pluginHandler)
   {
     super("Settings");
     jSettingsDialog = new JSettingsDialog(parent, pluginHandler);
