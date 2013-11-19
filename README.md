@@ -130,9 +130,10 @@ public class Example2 extends ConverterPluginAdapter
   - [ ] Subfolders for plugins with dependencies
   - [ ] Zip-container for plugins with dependencies
 - [ ] Own classloader for each plugin to prevent dependency conflicts
-- [ ] Context menu for converter configuration
-- [ ] Settings dialog for plugin configuration
-  - [ ] TabbedPanel where each plugin will be displayed via his name
+- [x] Context menu for converter configuration
+- [ ] Global converter configuration
+- [x] Settings dialog for plugin configuration
+  - [x] TabbedPanel where each plugin will be displayed via his name
   - [x] Plugins can provide a JPanel for his configuration dialog
 - [ ] JNLP version of the drop converter
 - [ ] Provide the plugin jar over a maven repository
