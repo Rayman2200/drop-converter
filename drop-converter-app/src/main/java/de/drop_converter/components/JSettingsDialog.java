@@ -7,18 +7,18 @@ import java.awt.Component;
 import java.util.logging.Logger;
 
 import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import de.drop_converter.Converter;
 import de.drop_converter.PluginHandler;
 import de.drop_converter.PluginWrapper;
 import de.drop_converter.listener.PluginListener;
 import de.drop_converter.plugin.ConverterPlugin;
 
 /**
- * Settings dialog that let the user configure the actual installed plugins if they provide such a configuration panel.
+ * Settings dialog that let the user configure the actual installed plugins if
+ * they provide such a configuration panel.
  * 
  * @author Thomas Chojecki
  */
@@ -27,32 +27,28 @@ public class JSettingsDialog extends JDialog implements PluginListener
 
   private final JTabbedPane pane = new JTabbedPane(JTabbedPane.LEFT);
 
-  private static final Logger LOG = Logger.getLogger(JSettingsDialog.class.getName());
+  private final Converter converter;
+
+  private static final Logger LOGGER = Logger.getLogger(JSettingsDialog.class.getName());
 
   /**
    * @param parent is the parent JFrame
    * @param pluginHandler contains the plugins that can provide configuration panels.
    * @throws IllegalArgumentException if the PluginHandler is null.
    */
-  public JSettingsDialog(JFrame parent, PluginHandler pluginHandler) throws IllegalArgumentException
+  public JSettingsDialog(Converter parent, PluginHandler pluginHandler) throws IllegalArgumentException
   {
     super(parent);
+    this.converter = parent;
     setModal(true);
     setTitle("Settings");
     setSize(800, 600);
     add(pane);
 
     pluginHandler.addPluginListener(this);
-    
-    addTab("Global settings", createConverterConfiguration());
-    addTab("Plugin configuration", new JPluginConfiguration(pluginHandler));
-  }
 
-  private JPanel createConverterConfiguration()
-  {
-    JPanel panel = new JPanel();
-    panel.add(new JLabel("Hallo Welt"));
-    return panel;
+    addTab("Global settings", converter.getConfiguration().getPanel());
+    addTab("Plugin configuration", new JPluginConfiguration(pluginHandler));
   }
 
   /**
@@ -64,7 +60,7 @@ public class JSettingsDialog extends JDialog implements PluginListener
   public void addTab(String title, Component comp)
   {
     pane.addTab(title, comp);
-    LOG.fine("Plugin \"" + title + "\" provide configuration panel");
+    LOGGER.fine("Plugin \"" + title + "\" provide configuration panel");
   }
 
   /**
