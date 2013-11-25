@@ -211,6 +211,14 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
 
     @Override
     public void addedPlugin(PluginWrapper plugin)
+    {}
+
+    @Override
+    public void removedPlugin(PluginWrapper plugin)
+    {}
+
+    @Override
+    public void initializedPlugin(PluginWrapper plugin)
     {
       plugins.add(plugin);
       if (selectedItem == null) {
@@ -222,9 +230,14 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
     }
 
     @Override
-    public void removedPlugin(PluginWrapper plugin)
+    public void destroyedPlugin(PluginWrapper plugin)
     {
       plugins.remove(plugin);
+      if (plugin.equals(selectedItem)) {
+        selectedItem = null;
+      }
+      int indexItem = plugins.size() - 1;
+      fireContentsChanged(this, indexItem, indexItem);
     }
   }
 }

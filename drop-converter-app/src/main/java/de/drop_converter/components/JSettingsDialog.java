@@ -42,7 +42,7 @@ public class JSettingsDialog extends JDialog implements PluginListener
     this.converter = parent;
     setModal(true);
     setTitle("Settings");
-    setSize(800, 600);
+    setSize(1000, 600);
     add(pane);
 
     pluginHandler.addPluginListener(this);
@@ -79,7 +79,7 @@ public class JSettingsDialog extends JDialog implements PluginListener
 
   public void removeTab(PluginWrapper pluginWrapper)
   {
-    // FIXME: 
+    // FIXME:
   }
 
   @Override
@@ -88,8 +88,17 @@ public class JSettingsDialog extends JDialog implements PluginListener
     addTab(plugin);
   }
 
+  @Override
   public void removedPlugin(PluginWrapper plugin)
   {
     removeTab(plugin);
   };
+
+  @Override
+  public void initializedPlugin(PluginWrapper plugin)
+  {}
+
+  @Override
+  public void destroyedPlugin(PluginWrapper plugin)
+  {}
 }

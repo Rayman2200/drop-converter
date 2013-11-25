@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package de.drop_converter;
 
+import java.util.List;
 import java.util.logging.Logger;
 
+import de.drop_converter.listener.PluginListener;
 import de.drop_converter.plugin.ConverterPlugin;
 import de.drop_converter.plugin.annotations.ConverterPluginDetails;
 import de.drop_converter.plugin.exception.InitializationException;
@@ -30,7 +32,10 @@ public class PluginWrapper implements Comparable<PluginWrapper>
   private boolean pluginInitialized = false;
   private boolean pluginEnabled = false;
 
-  private ConverterPlugin plugin;
+  private final ConverterPlugin plugin;
+
+  // Hold a list with all registered listener that what to be notificated if plugin is initialized or disabled.
+  private List<PluginListener> list;
 
   public PluginWrapper(ConverterPlugin plugin)
   {
@@ -100,8 +105,14 @@ public class PluginWrapper implements Comparable<PluginWrapper>
       }
 
       plugin.initPlugin();
-      LOGGER.info("Plugin initialized: " + getPluginName());
+      LOGGER.fine("Plugin initialized: " + getPluginName());
       pluginInitialized = true;
+
+      if (list != null) {
+        for (PluginListener listener : list) {
+          listener.initializedPlugin(this);
+        }
+      }
     }
   }
 
@@ -114,8 +125,14 @@ public class PluginWrapper implements Comparable<PluginWrapper>
   {
     if (isPluginInitialized()) {
       plugin.destroyPlugin();
-      LOGGER.info("Plugin destroyed: " + getPluginName());
-      plugin = null;
+      LOGGER.fine("Plugin destroyed: " + getPluginName());
+      pluginInitialized = false;
+
+      if (list != null) {
+        for (PluginListener listener : list) {
+          listener.destroyedPlugin(this);
+        }
+      }
     }
   }
 
@@ -129,7 +146,7 @@ public class PluginWrapper implements Comparable<PluginWrapper>
   {
     if (!pluginEnabled) {
       plugin.enablePlugin();
-      LOGGER.info("Plugin enabled: " + getPluginName());
+      LOGGER.fine("Plugin enabled: " + getPluginName());
       pluginEnabled = true;
     }
   }
@@ -143,7 +160,7 @@ public class PluginWrapper implements Comparable<PluginWrapper>
   {
     if (pluginEnabled) {
       plugin.disablePlugin();
-      LOGGER.info("Plugin disabled: " + getPluginName());
+      LOGGER.fine("Plugin disabled: " + getPluginName());
       pluginEnabled = false;
     }
   }
@@ -180,4 +197,15 @@ public class PluginWrapper implements Comparable<PluginWrapper>
     return getPluginName();
   }
 
+  /**
+   * A reference to the <code>PluginListener</code> list from the <code>PluginHandler</code>. It will be used to
+   * notify all listeners if the state of this plugin changed (initialize or destroy). This state can only be obtained
+   * from inside the <code>PluginWrapper</code>.
+   * 
+   * @param list is a reference to the listener list.
+   */
+  void setPluginListenerList(List<PluginListener> list)
+  {
+    this.list = list;
+  }
 }

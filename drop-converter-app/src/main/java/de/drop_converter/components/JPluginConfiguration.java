@@ -4,19 +4,19 @@
 package de.drop_converter.components;
 
 import java.awt.BorderLayout;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.AbstractTableModel;
 
 import de.drop_converter.PluginHandler;
 import de.drop_converter.PluginWrapper;
 import de.drop_converter.listener.PluginListener;
+import de.drop_converter.plugin.exception.InitializationException;
 
 /**
  * Configure the installed plugins.
@@ -25,50 +25,120 @@ import de.drop_converter.listener.PluginListener;
  */
 public class JPluginConfiguration extends JPanel implements PluginListener
 {
-  private final PluginHandler pluginHandler;
+  private final JTable pluginOverview;
 
-  private final DefaultTableModel model;
-
-  private final JTable pluginOverviewe;
+  private final List<PluginWrapper> plugins;
 
   public JPluginConfiguration(PluginHandler pluginHandler)
   {
-    this.pluginHandler = pluginHandler;
     pluginHandler.addPluginListener(this);
+    plugins = new ArrayList<>(pluginHandler.getPlugins());
+
     setLayout(new BorderLayout());
     add(new JLabel("Dummy plugin configuration."), BorderLayout.NORTH);
 
-    Set<PluginWrapper> plugins = pluginHandler.getPlugins();
-    Iterator<PluginWrapper> it = plugins.iterator();
-
-    String[] t = new String[] { "Name", "Description", "Version", "Website", "Author", "Email", "Enabled?" };
-    model = new DefaultTableModel(t, 0);
-    
-    while (it.hasNext()) {
-      addPlugin((PluginWrapper) it.next());
-    }
-
-    pluginOverviewe = new JTable(model);
-    add(new JScrollPane(pluginOverviewe), BorderLayout.CENTER);
-
-  }
-
-  private void addPlugin(PluginWrapper p)
-  {
-    Object[] v = new Object[] { p.getPluginName(), p.getPluginDescription(), p.getPluginVersion(), 
-                                p.getPluginWebsite(), p.getAuthorName(),p.getAuthorEmail(), new JCheckBox("", true) };
-    model.addRow(v);
+    pluginOverview = new JTable(new TableModel());
+    add(new JScrollPane(pluginOverview), BorderLayout.CENTER);
   }
 
   @Override
   public void addedPlugin(PluginWrapper plugin)
   {
-    addPlugin(plugin);
+    plugins.add(plugin);
   }
 
   @Override
   public void removedPlugin(PluginWrapper plugin)
   {
+    plugins.remove(plugin);
+  }
 
+  @Override
+  public void initializedPlugin(PluginWrapper plugin)
+  {}
+
+  @Override
+  public void destroyedPlugin(PluginWrapper plugin)
+  {}
+
+  class TableModel extends AbstractTableModel
+  {
+
+    private final String[] columnNames = new String[] { "Name", "Description", "Version", "Website", "Author", "Email",
+        "Enabled?" };
+
+    @Override
+    public int getRowCount()
+    {
+      return plugins.size();
+    }
+
+    @Override
+    public int getColumnCount()
+    {
+      return columnNames.length;
+    }
+
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex)
+    {
+      return columnIndex == 6 ? true : false;
+    }
+
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex)
+    {
+      boolean flag = (boolean) aValue;
+      PluginWrapper pluginWrapper = plugins.get(rowIndex);
+      try {
+        if (flag) {
+          pluginWrapper.initializePlugin();
+        } else {
+          if (pluginWrapper.isPluginEnabled()) {
+            pluginWrapper.disablePlugin();
+          }
+          pluginWrapper.destroyPlugin();
+        }
+      } catch (InitializationException e) {
+
+      }
+    }
+
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex)
+    {
+      PluginWrapper pluginWrapper = plugins.get(rowIndex);
+
+      switch (columnIndex)
+      {
+        case 0:
+          return pluginWrapper.getPluginName();
+        case 1:
+          return pluginWrapper.getPluginDescription();
+        case 2:
+          return pluginWrapper.getPluginVersion();
+        case 3:
+          return pluginWrapper.getPluginWebsite();
+        case 4:
+          return pluginWrapper.getAuthorName();
+        case 5:
+          return pluginWrapper.getAuthorEmail();
+        case 6:
+          return pluginWrapper.isPluginInitialized();
+      }
+      return null;
+    }
+
+    @Override
+    public String getColumnName(int column)
+    {
+      return columnNames[column];
+    }
+
+    @Override
+    public Class<?> getColumnClass(int columnIndex)
+    {
+      return columnIndex == 6 ? Boolean.class : String.class;
+    }
   }
 }

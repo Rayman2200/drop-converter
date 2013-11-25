@@ -29,7 +29,7 @@ public class PluginHandler
 
   private final Set<PluginWrapper> plugins = new TreeSet<>();
 
-  private final Set<String> pluginExclusions = new TreeSet<>();
+  private List<String> pluginExclusions = new ArrayList<>();
 
   private final List<PluginListener> listenerList = new ArrayList<>();
 
@@ -56,6 +56,7 @@ public class PluginHandler
   public void registerPlugin(ConverterPlugin plugin)
   {
     PluginWrapper pluginWrapper = new PluginWrapper(plugin);
+    pluginWrapper.setPluginListenerList(Collections.unmodifiableList(listenerList));
 
     if (pluginExclusions.contains(plugin.getClass().getName())) {
       LOG.info("Plugin disabled by the user: " + pluginWrapper.getPluginName());
@@ -108,7 +109,7 @@ public class PluginHandler
       LOG.info("Shutting down the plugin handler and all registered plugins.");
       Iterator<PluginWrapper> iterator = plugins.iterator();
       while (iterator.hasNext()) {
-        PluginWrapper pluginWrapper = (PluginWrapper) iterator.next();
+        PluginWrapper pluginWrapper = iterator.next();
 
         try {
           if (pluginWrapper.isPluginEnabled()) {
@@ -126,6 +127,15 @@ public class PluginHandler
     } else {
       LOG.info("PluginHandler already shut down. Skipping.");
     }
+  }
+
+  /**
+   * Set a list of plugin class names that should not be initialized. (blacklisted plugins)
+   */
+  public void setPluginExclusion(List<String> disabledPlugins)
+  {
+    pluginExclusions = disabledPlugins;
+
   }
 
 }

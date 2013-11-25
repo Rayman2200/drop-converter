@@ -11,4 +11,7 @@ public interface PluginListener
 
   public void removedPlugin(PluginWrapper plugin);
 
+  public void initializedPlugin(PluginWrapper plugin);
+
+  public void destroyedPlugin(PluginWrapper plugin);
 }

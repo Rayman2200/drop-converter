@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -121,6 +122,7 @@ public class Converter extends JFrame
     }
 
     pluginHandler = new PluginHandler();
+    pluginHandler.setPluginExclusion(config.getDisabledPlugins());
     pluginsChooser = new JPluginComboBox(pluginHandler);
     dropComponent = new JDropableComponent(image, pluginsChooser);
 
@@ -156,7 +158,7 @@ public class Converter extends JFrame
     try {
       UIManager.setLookAndFeel(config.getLookAndFeel());
     } catch (Exception e1) {
-      LOGGER.log(Level.FINE, "Could not load configured look and feel. Using default one.",e1);
+      LOGGER.log(Level.FINE, "Could not load configured look and feel. Using default one.", e1);
     }
 
     try {
@@ -343,12 +345,28 @@ public class Converter extends JFrame
   @Override
   public void dispose()
   {
-    if (pluginHandler != null) {
-      pluginHandler.dispose();
+    try {
+      // save the state of the plugins
+      Set<PluginWrapper> plugins = pluginHandler.getPlugins();
+      config.setDisabledPlugins(plugins);
+
+      if (pluginHandler != null) {
+        pluginHandler.dispose();
+      }
+
+      try {
+        config.storeConfiguration();
+      } catch (IOException e) {
+        LOGGER.log(Level.WARNING, "Could not store configuration.", e);
+      }
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, "Problem while trying to shut down the Converter. Force close!!!", e);
+      e.printStackTrace();
     }
+
     super.dispose();
   }
-  
+
   public Configuration getConfiguration()
   {
     return config;
