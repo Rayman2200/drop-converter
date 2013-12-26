@@ -1,4 +1,5 @@
 # Drop-Converter
+[![Build Status](https://travis-ci.org/Rayman2200/drop-converter.png?branch=master)](https://travis-ci.org/Rayman2200/drop-converter)
 
 The Drop-Converter is a small tool that helps converting files via drag&drop into a target format depends on the used plugin. Such plugins can be used to encode files to base64 or hex and many more formats depending on the implemented plugin features. 
 
