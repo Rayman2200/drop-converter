@@ -80,13 +80,17 @@ public class Converter extends JFrame
     UPPER_LEFT, UPPER, UPPER_RIGHT, RIGHT, LOWER_RIGHT, LOWER, LOWER_LEFT, LEFT
   }
 
-  static {
+  static
+  {
     // Init the logging system from the logging.properties provided inside the jar or through IDE.
     InputStream inputStream = null;
-    try {
+    try
+    {
       inputStream = Converter.class.getResourceAsStream("/logging.properties");
       LogManager.getLogManager().readConfiguration(inputStream);
-    } catch (IOException e) {
+    }
+    catch (IOException e)
+    {
       System.err.println("Could not init logging");
     }
   }
@@ -99,24 +103,33 @@ public class Converter extends JFrame
     // configuration directories)
     initDirectories();
 
-    try {
+    try
+    {
       config = new Configuration(CONFIGURATION_FILE);
-    } catch (IOException e1) {
+    }
+    catch (IOException e1)
+    {
       LOGGER.log(Level.SEVERE, "Could not initialize configuration", e1);
       System.exit(1);
     }
 
     Image image = null;
     URL resource = null;
-    try {
+    try
+    {
       resource = getClass().getResource("/images/dragdrop-150.png");
-      if (resource == null) {
+      if (resource == null)
+      {
         LOGGER.warning("Could not find drop-image.");
         image = createFallbackImage();
-      } else {
+      }
+      else
+      {
         image = ImageIO.read(resource);
       }
-    } catch (IOException e) {
+    }
+    catch (IOException e)
+    {
       LOGGER.log(Level.WARNING, "Could not parse drop-image from " + resource + ". Creating fallback image");
       image = createFallbackImage();
     }
@@ -134,8 +147,9 @@ public class Converter extends JFrame
 
     URLClassLoader pluginClassloader = loadPlugins();
 
-    if (pluginClassloader != null) {
-      pluginHandler.loadPlugins(loadPlugins());
+    if (pluginClassloader != null)
+    {
+      pluginHandler.loadPlugins(pluginClassloader);
       // pluginsChooser.reloadPlugins();
     }
 
@@ -155,13 +169,17 @@ public class Converter extends JFrame
     labelBottom.setBackground(Color.WHITE);
     labelTop.setBackground(Color.WHITE);
 
-    try {
+    try
+    {
       UIManager.setLookAndFeel(config.getLookAndFeel());
-    } catch (Exception e1) {
+    }
+    catch (Exception e1)
+    {
       LOGGER.log(Level.FINE, "Could not load configured look and feel. Using default one.", e1);
     }
 
-    try {
+    try
+    {
       Dimension screenSize = getToolkit().getScreenSize();
 
       add(pluginsChooser, BorderLayout.NORTH);
@@ -169,7 +187,9 @@ public class Converter extends JFrame
       pack();
       // alignment need to be done after pack
       alignWindow(getSize(), screenSize, position);
-    } catch (HeadlessException e) {
+    }
+    catch (HeadlessException e)
+    {
       LOGGER.severe("Converter can not be run in a headless environment.");
       System.exit(1);
     }
@@ -207,21 +227,27 @@ public class Converter extends JFrame
    */
   private void checkDirectory(File directory)
   {
-    if (!directory.exists()) {
-      if (directory.mkdirs()) {
+    if (!directory.exists())
+    {
+      if (directory.mkdirs())
+      {
         LOGGER.config("Created directory " + directory.getAbsolutePath());
-      } else {
+      }
+      else
+      {
         System.err.println("Could not create directory " + directory.getAbsolutePath());
         LOGGER.severe("Created directory " + directory.getAbsolutePath());
         System.exit(1);
       }
     }
 
-    if (!directory.isDirectory()) {
+    if (!directory.isDirectory())
+    {
       LOGGER.severe("Could not create directory " + directory.getAbsolutePath());
       System.exit(1);
     }
-    if (!directory.canWrite()) {
+    if (!directory.canWrite())
+    {
       LOGGER.severe("No write permission in directory " + directory.getAbsolutePath());
       System.exit(1);
     }
@@ -250,12 +276,17 @@ public class Converter extends JFrame
     // TODO: Seperate ClassLoader for each plugin.
     File[] jarFiles = CONVERTER_PLUGIN_DIR.listFiles(jarFileFilter);
 
-    if (jarFiles.length > 0) {
+    if (jarFiles.length > 0)
+    {
       ArrayList<URL> urls = new ArrayList<URL>();
-      for (File pluginFile : jarFiles) {
-        try {
+      for (File pluginFile : jarFiles)
+      {
+        try
+        {
           urls.add(pluginFile.toURI().toURL());
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e)
+        {
           LOGGER.warning("Could not load Plugin: " + pluginFile.getAbsolutePath());
         }
       }
@@ -345,21 +376,28 @@ public class Converter extends JFrame
   @Override
   public void dispose()
   {
-    try {
+    try
+    {
       // save the state of the plugins
       Set<PluginWrapper> plugins = pluginHandler.getPlugins();
       config.setDisabledPlugins(plugins);
 
-      if (pluginHandler != null) {
+      if (pluginHandler != null)
+      {
         pluginHandler.dispose();
       }
 
-      try {
+      try
+      {
         config.storeConfiguration();
-      } catch (IOException e) {
+      }
+      catch (IOException e)
+      {
         LOGGER.log(Level.WARNING, "Could not store configuration.", e);
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e)
+    {
       LOGGER.log(Level.SEVERE, "Problem while trying to shut down the Converter. Force close!!!", e);
       e.printStackTrace();
     }
