@@ -123,12 +123,15 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
    */
   private class JPluginComboBoxTransferHandler extends TransferHandler
   {
+    private static final long serialVersionUID = -2958126472004032812L;
+
     @Override
     public boolean canImport(TransferSupport support)
     {
       return support.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean importData(TransferSupport support)
     {

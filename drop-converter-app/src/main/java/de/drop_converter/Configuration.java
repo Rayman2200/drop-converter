@@ -139,7 +139,7 @@ public class Configuration
     String property = props.getProperty(KEY_DISABLED_PLUGINS);
     if (property == null || property.trim().isEmpty())
     {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     else
     {

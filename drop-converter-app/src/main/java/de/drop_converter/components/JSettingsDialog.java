@@ -24,6 +24,7 @@ import de.drop_converter.plugin.ConverterPlugin;
  */
 public class JSettingsDialog extends JDialog implements PluginListener
 {
+  private static final long serialVersionUID = 7990236744320792256L;
 
   private final JTabbedPane pane = new JTabbedPane(JTabbedPane.LEFT);
 

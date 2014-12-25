@@ -14,8 +14,9 @@ import de.drop_converter.Converter;
  */
 public class ExitContext extends AbstractAction
 {
+  private static final long serialVersionUID = 7053242073844389196L;
 
-  private Converter converter;
+  private final Converter converter;
 
   public ExitContext(Converter converter)
   {

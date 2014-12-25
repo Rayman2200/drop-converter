@@ -25,6 +25,8 @@ import de.drop_converter.plugin.exception.InitializationException;
  */
 public class JPluginConfiguration extends JPanel implements PluginListener
 {
+  private static final long serialVersionUID = -3839734726075703302L;
+
   private final JTable pluginOverview;
 
   private final List<PluginWrapper> plugins;
@@ -63,6 +65,7 @@ public class JPluginConfiguration extends JPanel implements PluginListener
 
   class TableModel extends AbstractTableModel
   {
+    private static final long serialVersionUID = 6496131328655864479L;
 
     private final String[] columnNames = new String[] { "Name", "Description", "Version", "Website", "Author", "Email", "Enabled?" };
 

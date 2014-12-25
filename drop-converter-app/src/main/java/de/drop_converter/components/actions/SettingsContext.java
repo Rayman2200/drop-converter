@@ -16,6 +16,7 @@ import de.drop_converter.components.JSettingsDialog;
  */
 public class SettingsContext extends AbstractAction
 {
+  private static final long serialVersionUID = 2569598186351181421L;
 
   private final JSettingsDialog jSettingsDialog;
 
