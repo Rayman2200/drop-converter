@@ -64,8 +64,7 @@ public class JPluginConfiguration extends JPanel implements PluginListener
   class TableModel extends AbstractTableModel
   {
 
-    private final String[] columnNames = new String[] { "Name", "Description", "Version", "Website", "Author", "Email",
-        "Enabled?" };
+    private final String[] columnNames = new String[] { "Name", "Description", "Version", "Website", "Author", "Email", "Enabled?" };
 
     @Override
     public int getRowCount()
@@ -90,16 +89,23 @@ public class JPluginConfiguration extends JPanel implements PluginListener
     {
       boolean flag = (boolean) aValue;
       PluginWrapper pluginWrapper = plugins.get(rowIndex);
-      try {
-        if (flag) {
+      try
+      {
+        if (flag)
+        {
           pluginWrapper.initializePlugin();
-        } else {
-          if (pluginWrapper.isPluginEnabled()) {
+        }
+        else
+        {
+          if (pluginWrapper.isPluginEnabled())
+          {
             pluginWrapper.disablePlugin();
           }
           pluginWrapper.destroyPlugin();
         }
-      } catch (InitializationException e) {
+      }
+      catch (InitializationException e)
+      {
 
       }
     }

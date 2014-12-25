@@ -43,7 +43,8 @@ public class PluginWrapper implements Comparable<PluginWrapper>
 
     Class<? extends ConverterPlugin> pluginClass = plugin.getClass();
 
-    if (pluginClass.isAnnotationPresent(ConverterPluginDetails.class)) {
+    if (pluginClass.isAnnotationPresent(ConverterPluginDetails.class))
+    {
       ConverterPluginDetails annot = pluginClass.getAnnotation(ConverterPluginDetails.class);
       authorName = annot.authorName();
       authorEmail = annot.authorEmail();
@@ -51,7 +52,9 @@ public class PluginWrapper implements Comparable<PluginWrapper>
       pluginDescription = annot.pluginDescription();
       pluginVersion = annot.pluginVersion();
       pluginWebsite = annot.pluginWebsite();
-    } else {
+    }
+    else
+    {
       pluginName = plugin.toString();
     }
   }
@@ -98,9 +101,11 @@ public class PluginWrapper implements Comparable<PluginWrapper>
    */
   public synchronized void initializePlugin() throws InitializationException
   {
-    if (!isPluginInitialized()) {
+    if (!isPluginInitialized())
+    {
       // if the plugin was already destroyed, we can not initialize.
-      if (plugin == null) {
+      if (plugin == null)
+      {
         return;
       }
 
@@ -108,8 +113,10 @@ public class PluginWrapper implements Comparable<PluginWrapper>
       LOGGER.fine("Plugin initialized: " + getPluginName());
       pluginInitialized = true;
 
-      if (list != null) {
-        for (PluginListener listener : list) {
+      if (list != null)
+      {
+        for (PluginListener listener : list)
+        {
           listener.initializedPlugin(this);
         }
       }
@@ -123,13 +130,16 @@ public class PluginWrapper implements Comparable<PluginWrapper>
    */
   public synchronized void destroyPlugin() throws InitializationException
   {
-    if (isPluginInitialized()) {
+    if (isPluginInitialized())
+    {
       plugin.destroyPlugin();
       LOGGER.fine("Plugin destroyed: " + getPluginName());
       pluginInitialized = false;
 
-      if (list != null) {
-        for (PluginListener listener : list) {
+      if (list != null)
+      {
+        for (PluginListener listener : list)
+        {
           listener.destroyedPlugin(this);
         }
       }
@@ -144,7 +154,8 @@ public class PluginWrapper implements Comparable<PluginWrapper>
    */
   public synchronized void enablePlugin() throws InitializationException
   {
-    if (!pluginEnabled) {
+    if (!pluginEnabled)
+    {
       plugin.enablePlugin();
       LOGGER.fine("Plugin enabled: " + getPluginName());
       pluginEnabled = true;
@@ -158,7 +169,8 @@ public class PluginWrapper implements Comparable<PluginWrapper>
    */
   public synchronized void disablePlugin() throws InitializationException
   {
-    if (pluginEnabled) {
+    if (pluginEnabled)
+    {
       plugin.disablePlugin();
       LOGGER.fine("Plugin disabled: " + getPluginName());
       pluginEnabled = false;

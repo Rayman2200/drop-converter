@@ -10,13 +10,11 @@ import javax.swing.AbstractAction;
 import de.drop_converter.Converter;
 
 /**
- * 
  * @author Thomas Chojecki
- * 
  */
 public class ExitContext extends AbstractAction
 {
-  
+
   private Converter converter;
 
   public ExitContext(Converter converter)

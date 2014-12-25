@@ -43,7 +43,8 @@ public class PluginHandler
    */
   public void loadPlugins(ClassLoader cl)
   {
-    for (ConverterPlugin converterPlugin : ServiceLoader.load(ConverterPlugin.class, cl)) {
+    for (ConverterPlugin converterPlugin : ServiceLoader.load(ConverterPlugin.class, cl))
+    {
       registerPlugin(converterPlugin);
     }
   }
@@ -58,22 +59,28 @@ public class PluginHandler
     PluginWrapper pluginWrapper = new PluginWrapper(plugin);
     pluginWrapper.setPluginListenerList(Collections.unmodifiableList(listenerList));
 
-    if (pluginExclusions.contains(plugin.getClass().getName())) {
+    if (pluginExclusions.contains(plugin.getClass().getName()))
+    {
       LOG.info("Plugin disabled by the user: " + pluginWrapper.getPluginName());
-    } else {
-      try {
+    }
+    else
+    {
+      try
+      {
         // Initialize the plugin
         pluginWrapper.initializePlugin();
-      } catch (InitializationException e) {
-        LOG.log(Level.SEVERE, "Plugin initialization failed: " + pluginWrapper.getPluginName()
-            + " could not be initialized.", e);
+      }
+      catch (InitializationException e)
+      {
+        LOG.log(Level.SEVERE, "Plugin initialization failed: " + pluginWrapper.getPluginName() + " could not be initialized.", e);
       }
     }
 
     plugins.add(pluginWrapper);
 
     // fire listener
-    for (PluginListener listener : listenerList) {
+    for (PluginListener listener : listenerList)
+    {
       listener.addedPlugin(pluginWrapper);
     }
   }
@@ -95,7 +102,8 @@ public class PluginHandler
    */
   public void addPluginListener(PluginListener listener)
   {
-    if (!listenerList.contains(listener)) {
+    if (!listenerList.contains(listener))
+    {
       listenerList.add(listener);
     }
   }
@@ -105,26 +113,35 @@ public class PluginHandler
    */
   public synchronized void dispose()
   {
-    if (!closed) {
+    if (!closed)
+    {
       LOG.info("Shutting down the plugin handler and all registered plugins.");
       Iterator<PluginWrapper> iterator = plugins.iterator();
-      while (iterator.hasNext()) {
+      while (iterator.hasNext())
+      {
         PluginWrapper pluginWrapper = iterator.next();
 
-        try {
-          if (pluginWrapper.isPluginEnabled()) {
+        try
+        {
+          if (pluginWrapper.isPluginEnabled())
+          {
             pluginWrapper.disablePlugin();
           }
 
-          if (pluginWrapper.isPluginInitialized()) {
+          if (pluginWrapper.isPluginInitialized())
+          {
             pluginWrapper.destroyPlugin();
           }
-        } catch (InitializationException e) {
+        }
+        catch (InitializationException e)
+        {
           // nothing to do
         }
       }
       closed = true;
-    } else {
+    }
+    else
+    {
       LOG.info("PluginHandler already shut down. Skipping.");
     }
   }

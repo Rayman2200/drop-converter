@@ -56,11 +56,11 @@ public class JDropableComponent extends JComponent
   {
     return new Dimension(img.getWidth(this), img.getHeight(this));
   }
-  
+
   /**
    * Set the context menu
    */
-  public void setContextMenu(ContextMenu menu) 
+  public void setContextMenu(ContextMenu menu)
   {
     addMouseListener(menu);
   }
@@ -78,7 +78,8 @@ public class JDropableComponent extends JComponent
     public boolean canImport(TransferSupport support)
     {
       PluginWrapper selectedItem = (PluginWrapper) pluginChooser.getSelectedItem();
-      if (selectedItem != null) {
+      if (selectedItem != null)
+      {
         support.setDropAction(COPY);
         return selectedItem.getPlugin().canImport(support);
       }
@@ -89,10 +90,14 @@ public class JDropableComponent extends JComponent
     public boolean importData(TransferSupport support)
     {
       PluginWrapper selectedItem = (PluginWrapper) pluginChooser.getSelectedItem();
-      if (selectedItem != null) {
-        try {
+      if (selectedItem != null)
+      {
+        try
+        {
           return selectedItem.getPlugin().importData(support);
-        } catch (ConverterException e) {
+        }
+        catch (ConverterException e)
+        {
           String error = "Performing convert with plugin " + selectedItem.getPluginName() + " failed.";
           String message = "The plugin throws an error durring the convert: " + e.getMessage();
 

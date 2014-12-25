@@ -54,7 +54,8 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
    */
   public JPluginComboBox(PluginHandler pluginHandler) throws IllegalArgumentException
   {
-    if (pluginHandler == null) {
+    if (pluginHandler == null)
+    {
       throw new IllegalArgumentException("PluginHandler shall not be null");
     }
 
@@ -66,7 +67,8 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
       @Override
       public void itemStateChanged(ItemEvent e)
       {
-        if (e.getStateChange() == ItemEvent.SELECTED) {
+        if (e.getStateChange() == ItemEvent.SELECTED)
+        {
           pluginStateChanged((PluginWrapper) e.getItem());
         }
       }
@@ -78,7 +80,8 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
     handler.addPluginListener(model);
     setModel(model);
 
-    if (plugins.size() > 0) {
+    if (plugins.size() > 0)
+    {
       setSelectedIndex(0);
     }
   }
@@ -90,17 +93,24 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
    */
   private void pluginStateChanged(PluginWrapper newPlugin)
   {
-    if (lastPlugin != null && lastPlugin.isPluginEnabled()) {
-      try {
+    if (lastPlugin != null && lastPlugin.isPluginEnabled())
+    {
+      try
+      {
         lastPlugin.disablePlugin();
-      } catch (InitializationException ex) {
+      }
+      catch (InitializationException ex)
+      {
         LOG.log(Level.SEVERE, "Could not disable deselected plugin " + lastPlugin.getPluginName(), ex);
       }
     }
     lastPlugin = newPlugin;
-    try {
+    try
+    {
       lastPlugin.enablePlugin();
-    } catch (InitializationException ex) {
+    }
+    catch (InitializationException ex)
+    {
       LOG.log(Level.SEVERE, "Could not enable selected plugin " + lastPlugin.getPluginName(), ex);
     }
   }
@@ -122,37 +132,47 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
     @Override
     public boolean importData(TransferSupport support)
     {
-      try {
-        if (support.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+      try
+      {
+        if (support.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+        {
           Transferable transferable = support.getTransferable();
           List<File> transferData = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
           ArrayList<URL> plugins = new ArrayList<URL>();
-          for (File file : transferData) {
-            if (file.isDirectory()) {
+          for (File file : transferData)
+          {
+            if (file.isDirectory())
+            {
               LOG.warning("Only Files are allowed as plugin Drag&Drop.");
               return false;
             }
 
-            if (file.getName().endsWith(".jar")) {
-              try {
+            if (file.getName().endsWith(".jar"))
+            {
+              try
+              {
                 File dest = new File(CONVERTER_PLUGIN_DIR, file.getName());
                 Files.copy(file.toPath(), dest.toPath(), new CopyOption[0]);
                 plugins.add(dest.toURI().toURL());
-              } catch (IOException e) {
-                LOG.log(Level.WARNING,
-                    "Could not copy Drag&Dropped plugin " + file.getName() + " to plugin directory.", e);
+              }
+              catch (IOException e)
+              {
+                LOG.log(Level.WARNING, "Could not copy Drag&Dropped plugin " + file.getName() + " to plugin directory.", e);
               }
             }
           }
 
           // Only reload if at least one plugin was added.
-          if (!plugins.isEmpty()) {
+          if (!plugins.isEmpty())
+          {
             handler.loadPlugins(new URLClassLoader(plugins.toArray(new URL[0])));
             return true;
           }
           return false;
         }
-      } catch (UnsupportedFlavorException | IOException e) {
+      }
+      catch (UnsupportedFlavorException | IOException e)
+      {
         LOG.log(Level.SEVERE, "Could not procede with given Drag&Drop.", e);
       }
       return false;
@@ -164,8 +184,7 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
    * 
    * @author Thomas Chojecki
    */
-  private static class Model extends AbstractListModel<PluginWrapper> implements ComboBoxModel<PluginWrapper>,
-      PluginListener
+  private static class Model extends AbstractListModel<PluginWrapper> implements ComboBoxModel<PluginWrapper>, PluginListener
   {
     private static final long serialVersionUID = -8935531015863045662L;
 
@@ -175,9 +194,12 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
 
     public Model(Collection<PluginWrapper> plugins)
     {
-      if (plugins instanceof List) {
+      if (plugins instanceof List)
+      {
         this.plugins = (List<PluginWrapper>) plugins;
-      } else {
+      }
+      else
+      {
         this.plugins = new ArrayList<PluginWrapper>(plugins);
       }
     }
@@ -197,7 +219,8 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
     @Override
     public void setSelectedItem(Object anItem)
     {
-      if ((selectedItem != null && !selectedItem.equals(anItem)) || selectedItem == null && anItem != null) {
+      if ((selectedItem != null && !selectedItem.equals(anItem)) || selectedItem == null && anItem != null)
+      {
         selectedItem = anItem;
         fireContentsChanged(this, -1, -1);
       }
@@ -221,7 +244,8 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
     public void initializedPlugin(PluginWrapper plugin)
     {
       plugins.add(plugin);
-      if (selectedItem == null) {
+      if (selectedItem == null)
+      {
         selectedItem = plugin;
       }
 
@@ -233,7 +257,8 @@ public class JPluginComboBox extends JComboBox<PluginWrapper>
     public void destroyedPlugin(PluginWrapper plugin)
     {
       plugins.remove(plugin);
-      if (plugin.equals(selectedItem)) {
+      if (plugin.equals(selectedItem))
+      {
         selectedItem = null;
       }
       int indexItem = plugins.size() - 1;

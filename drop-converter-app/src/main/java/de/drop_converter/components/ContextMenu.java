@@ -38,7 +38,8 @@ public class ContextMenu extends MouseAdapter
   @Override
   public void mousePressed(MouseEvent e)
   {
-    if (e.isPopupTrigger()) {
+    if (e.isPopupTrigger())
+    {
       showMenu(e);
     }
   }
@@ -46,7 +47,8 @@ public class ContextMenu extends MouseAdapter
   @Override
   public void mouseReleased(MouseEvent e)
   {
-    if (e.isPopupTrigger()) {
+    if (e.isPopupTrigger())
+    {
       showMenu(e);
     }
   }

@@ -12,22 +12,20 @@ import de.drop_converter.PluginHandler;
 import de.drop_converter.components.JSettingsDialog;
 
 /**
- * 
  * @author Thomas Chojecki
- *
  */
 public class SettingsContext extends AbstractAction
 {
 
   private final JSettingsDialog jSettingsDialog;
-  
+
   public SettingsContext(Converter parent, PluginHandler pluginHandler)
   {
     super("Settings");
     jSettingsDialog = new JSettingsDialog(parent, pluginHandler);
     jSettingsDialog.setModal(true);
   }
-  
+
   @Override
   public void actionPerformed(ActionEvent e)
   {

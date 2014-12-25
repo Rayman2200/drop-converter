@@ -48,13 +48,18 @@ public class Configuration
   public Configuration(File configurationFile) throws IOException
   {
     this.configurationFile = configurationFile;
-    if (configurationFile.exists()) {
-      if (configurationFile.isFile()) {
-        try (FileInputStream fis = new FileInputStream(configurationFile)) {
+    if (configurationFile.exists())
+    {
+      if (configurationFile.isFile())
+      {
+        try (FileInputStream fis = new FileInputStream(configurationFile))
+        {
           props.load(fis);
         }
       }
-    } else {
+    }
+    else
+    {
       configurationFile.createNewFile();
     }
 
@@ -88,9 +93,12 @@ public class Configuration
       @Override
       public void actionPerformed(ActionEvent e)
       {
-        if (e.getSource().equals(buttonSave)) {
+        if (e.getSource().equals(buttonSave))
+        {
           // TODO: save action
-        } else if (e.getSource().equals(buttonReset)) {
+        }
+        else if (e.getSource().equals(buttonReset))
+        {
           // TODO: reset action
         }
       }
@@ -108,7 +116,8 @@ public class Configuration
 
     settings.add(new JLabel("Look and Feel:"));
     lookAndFeelSelector = new JComboBox<>();
-    for (LookAndFeelInfo lookAndFeelInfo : UIManager.getInstalledLookAndFeels()) {
+    for (LookAndFeelInfo lookAndFeelInfo : UIManager.getInstalledLookAndFeels())
+    {
       lookAndFeelSelector.addItem(lookAndFeelInfo.getClassName());
     }
     lookAndFeelSelector.setSelectedItem(getLookAndFeel());
@@ -128,9 +137,12 @@ public class Configuration
   public List<String> getDisabledPlugins()
   {
     String property = props.getProperty(KEY_DISABLED_PLUGINS);
-    if (property == null || property.trim().isEmpty()) {
+    if (property == null || property.trim().isEmpty())
+    {
       return Collections.EMPTY_LIST;
-    } else {
+    }
+    else
+    {
       return Arrays.asList(property.split(","));
     }
   }
@@ -142,20 +154,25 @@ public class Configuration
    */
   public void setDisabledPlugins(Collection<PluginWrapper> plugins)
   {
-    if (!plugins.isEmpty()) {
+    if (!plugins.isEmpty())
+    {
       StringBuilder sb = new StringBuilder();
       Iterator<PluginWrapper> it = plugins.iterator();
-      if (!it.hasNext()) {
+      if (!it.hasNext())
+      {
         return;
       }
 
-      while (true) {
+      while (true)
+      {
         PluginWrapper p = it.next();
-        if (!p.isPluginInitialized()) {
+        if (!p.isPluginInitialized())
+        {
           sb.append(p.getPlugin().getClass().getName());
           sb.append(',');
         }
-        if (!it.hasNext()) {
+        if (!it.hasNext())
+        {
           props.setProperty(KEY_DISABLED_PLUGINS, sb.toString());
           return;
         }
@@ -170,7 +187,8 @@ public class Configuration
    */
   public void storeConfiguration() throws IOException
   {
-    try (OutputStream out = new FileOutputStream(configurationFile)) {
+    try (OutputStream out = new FileOutputStream(configurationFile))
+    {
       props.store(out, null);
     }
   }
