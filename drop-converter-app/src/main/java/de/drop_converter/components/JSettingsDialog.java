@@ -72,14 +72,19 @@ public class JSettingsDialog extends JDialog implements PluginListener
   {
     ConverterPlugin plugin = pluginWrapper.getPlugin();
     JPanel configPanel = plugin.getConfigPanel();
-    if (configPanel != null) {
+    if (configPanel != null)
+    {
       addTab(pluginWrapper.getPluginName(), plugin.getConfigPanel());
     }
   }
 
   public void removeTab(PluginWrapper pluginWrapper)
   {
-    // FIXME:
+    int indexOfTab = pane.indexOfTab(pluginWrapper.getPluginName());
+    if (indexOfTab != -1)
+    {
+      pane.remove(indexOfTab);
+    }
   }
 
   @Override
