@@ -50,13 +50,13 @@ public class Example implements ConverterPlugin { }
 
 ```
 
-The Plugin name will be shown in the plugin chooser and should be contain a short name or description. This annotation can be used instead of overriding the `public String toString()`.
+The Plugin name will be shown in the plugin chooser and should contain a short name or description. This annotation can be used instead of overriding the `public String toString()`.
 
-For larger plugins it may be useful to initialize the plugin and ressources via the `public void initPlugin()` and `public void enablePlugin()` methods. The `initPlugin()` method initialize the plugin during the converter start and should be used for some common initialization. The `enablePlugin()` method will be triggered if the plugin was selected and should init ressources that are needed for performing a convert. If the user switch the plugin, the `disablePlugin()` method will be triggered and the initialized resources should be cleaned. The converter will trigger `destroyPlugin()` if the user hit the close button, so additional cleanup can be made.
+For larger plugins, it may be useful to initialize the plugin and resources via the `public void initPlugin()` and `public void enablePlugin()` methods. The `initPlugin()` method initialize the plugin during the converter start and should be used for some common initialization. The `enablePlugin()` method will be triggered if the plugin was selected and should init resources that are needed for performing a convert. If the user switches the plugin, the `disablePlugin()` method will be triggered and the initialized resources should be cleaned. The converter will trigger `destroyPlugin()` if the user hit the close button, so additional cleanup can be made.
 
-If the plugin need to be configured, a configuration panel can be used to offer the user a gui. This panel can be returned using the `public JPanel getConfigPanel()` method. This JPanel will be shown in the plugin configuration section, which need to be implemented. 
+If the plugin needs to be configured, a configuration panel can be used to offer the user a GUI. This panel can be returned using the `public JPanel getConfigPanel()` method. This JPanel will be shown in the plugin configuration section, which need to be implemented. 
 
-### Example using the full featured interface
+### Example using the full-featured interface
 
 ```java
 import javax.swing.JPanel;
@@ -143,5 +143,5 @@ public class Example2 extends ConverterPluginAdapter
   - [ ] Themes (cooperate design)
 - [ ] Status- / Progressbar
 - [ ] Trayicon for minimization
-- [ ] Helper for determinating the output (file in filesystem or to clipboard)
+- [ ] Helper for determinating the output (file in filesystem or to the clipboard)
 - [ ] Contextmenu extensions for plugins 
